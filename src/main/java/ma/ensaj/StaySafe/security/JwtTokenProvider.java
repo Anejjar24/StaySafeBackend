@@ -3,6 +3,7 @@ package ma.ensaj.StaySafe.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import jakarta.annotation.PostConstruct;
 import ma.ensaj.StaySafe.entity.User;
 import org.springframework.stereotype.Component;
 
@@ -14,47 +15,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import ma.ensaj.StaySafe.entity.User;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
-import java.util.Date;
-/*
-@Component
-public class JwtTokenProvider {
-
-    @Value("${jwt.secret}")
-    private String secretKey;
-
-    @Value("${jwt.validity}")
-    private long validityInMilliseconds;
-
-    public String generateToken(User user) {
-        return Jwts.builder()
-                .setSubject(user.getEmail())
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + validityInMilliseconds))
-                .signWith(SignatureAlgorithm.HS256, secretKey)
-                .compact();
-    }
 
 
-    public Claims getClaims(String token) {
-        return Jwts.parser()
-                .setSigningKey(secretKey)
-                .parseClaimsJws(token)
-                .getBody();
-    }
-
-    public String getUsername(String token) {
-        return getClaims(token).getSubject();
-    }
-
-    public boolean validateToken(String token) {
-        return !getClaims(token).getExpiration().before(new Date());
-    }
-}
-
- */
-package ma.ensaj.StaySafe.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -64,7 +26,7 @@ import ma.ensaj.StaySafe.entity.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
+
 import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
