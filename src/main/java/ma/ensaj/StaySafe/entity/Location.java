@@ -21,6 +21,8 @@ public class Location {
     private User user;
 
     private String message;
+    @Enumerated(EnumType.STRING)
     private LocationStatus status = LocationStatus.ACTIVE;
+
 }
 

@@ -8,8 +8,10 @@ import ma.ensaj.StaySafe.security.JwtService;
 import ma.ensaj.StaySafe.security.LoginRequest;
 import ma.ensaj.StaySafe.security.PasswordResetRequest;
 import ma.ensaj.StaySafe.service.EmailService;
+import ma.ensaj.StaySafe.service.UserDetailsServiceImpl;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,10 +19,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
@@ -31,7 +30,8 @@ public class AuthController {
     private AuthenticationManager authenticationManager;
     @Autowired
     private EmailService emailService;
-
+    @Autowired
+    private UserDetailsServiceImpl userDetailsService;
     @Autowired
     private UserRepository userRepository;
 
@@ -93,5 +93,14 @@ public class AuthController {
 
     private String generateRandomPassword() {
         return RandomStringUtils.randomAlphanumeric(10);
+    }
+
+    @GetMapping("/current-user")
+    public ResponseEntity<User> getCurrentUser() {
+        User user = userDetailsService.getCurrentUser();
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        return ResponseEntity.ok(user);
     }
 }
