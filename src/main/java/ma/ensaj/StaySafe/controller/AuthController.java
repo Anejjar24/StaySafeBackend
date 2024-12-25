@@ -18,9 +18,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import java.security.Principal;
 import java.util.Optional;
 
 @RestController
@@ -103,4 +107,52 @@ public class AuthController {
         }
         return ResponseEntity.ok(user);
     }
+//    @GetMapping("/user-info")
+//    public ResponseEntity<?> getUserInfo(Principal principal) {
+//        String email = principal.getName(); // Extraire l'email de l'utilisateur depuis le JWT
+//        User user = userRepository.findByEmail(email)
+//                .orElseThrow(() -> new UsernameNotFoundException("Utilisateur non trouvé"));
+//
+//        return ResponseEntity.ok(user); // Retourner l'objet utilisateur en JSON
+//    }
+//@GetMapping("/user-info")
+//public ResponseEntity<?> getUserInfo() {
+//    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//
+//    if (authentication == null || !authentication.isAuthenticated()) {
+//        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Utilisateur non authentifié");
+//    }
+//
+//    String email = authentication.getName(); // Récupération du nom d'utilisateur
+//    System.out.println("Nom d'utilisateur extrait du contexte de sécurité : " + email);
+//
+//    User user = userRepository.findByEmail(email)
+//            .orElseThrow(() -> new UsernameNotFoundException("Utilisateur non trouvé"));
+//
+//    return ResponseEntity.ok(user);
+//}
+
+    @GetMapping("/user-info")
+    public ResponseEntity<?> getUserInfo() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        // Si pas de token JWT, on vérifie quand même si un header Authorization est présent
+        String authHeader = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
+                .getRequest().getHeader("Authorization");
+
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            String email = jwtService.extractUsername(token);
+
+            if (email != null) {
+                User user = userRepository.findByEmail(email)
+                        .orElseThrow(() -> new UsernameNotFoundException("Utilisateur non trouvé"));
+                return ResponseEntity.ok(user);
+            }
+        }
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token invalide ou manquant");
+    }
+
+
 }
